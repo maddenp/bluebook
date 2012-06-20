@@ -1,3 +1,16 @@
+// Copyright 2012 Paul Madden
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 public final class bluebook extends javax.swing.JFrame
 {
@@ -58,7 +71,7 @@ public final class bluebook extends javax.swing.JFrame
         title.setBackground(new java.awt.Color(255, 255, 255));
         title.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         title.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        title.setText("Blue Book");
+        title.setText("bluebook");
         topControlPanel.add(title);
 
         buttonPanel.setOpaque(false);
@@ -154,7 +167,7 @@ public final class bluebook extends javax.swing.JFrame
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
+
     private void dataPaneKeyTyped(java.awt.event.KeyEvent evt)//GEN-FIRST:event_dataPaneKeyTyped
     {//GEN-HEADEREND:event_dataPaneKeyTyped
       /*
@@ -168,7 +181,7 @@ public final class bluebook extends javax.swing.JFrame
         datachangedSet();
       }
     }//GEN-LAST:event_dataPaneKeyTyped
-    
+
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_exitButtonActionPerformed
     {//GEN-HEADEREND:event_exitButtonActionPerformed
       /*
@@ -181,7 +194,7 @@ public final class bluebook extends javax.swing.JFrame
         System.exit(0);
       }
     }//GEN-LAST:event_exitButtonActionPerformed
-    
+
     private void viewActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_viewActionPerformed
     {//GEN-HEADEREND:event_viewActionPerformed
       /*
@@ -209,7 +222,7 @@ public final class bluebook extends javax.swing.JFrame
       }
       resetPasswords();
     }//GEN-LAST:event_viewActionPerformed
-    
+
     private void saveActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_saveActionPerformed
     {//GEN-HEADEREND:event_saveActionPerformed
       /*
@@ -223,7 +236,7 @@ public final class bluebook extends javax.swing.JFrame
         if (checkPassword(p1))
         {
           firstPassword=false;
-          popUp("Confirm password, then click the lock icon again.");
+          popUp("Confirm password, then click the lock button again.");
           passwordField.setText("");
           passwordField.requestFocus();
         }
@@ -242,11 +255,10 @@ public final class bluebook extends javax.swing.JFrame
         resetPasswords();
       }
     }//GEN-LAST:event_saveActionPerformed
-    
+
     private void editActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editActionPerformed
       enterEditMode();
     }//GEN-LAST:event_editActionPerformed
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel buttonPanel;
     private javax.swing.JPanel controlPanel;

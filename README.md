@@ -23,4 +23,4 @@ The original contents of this repository are released under the [Apache 2.0](htt
 
 ###Thanks
 
-Thanks to the [Tango Desktop Project](http://tango.freedesktop.org/Tango_Desktop_Project) for public-domain icons and to the GNU Crypto team.
+Thanks to the [Tango Desktop Project](http://tango.freedesktop.org/Tango_Desktop_Project) for public-domain icons and to the [GNU Crypto](http://www.gnu.org/software/gnu-crypto) team.

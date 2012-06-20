@@ -1,0 +1,1185 @@
+This is gnu-crypto.info, produced by makeinfo version 4.5 from
+gnu-crypto.texi.
+
+This manual is for the GNU Crypto library, version 2.0.1.
+
+   Copyright (C) 2003 The Free Software Foundation, Inc.
+
+
+   Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back Cover Texts. A
+copy of the license is included in the section entitled "GNU Free
+Documentation License".  
+
+File: gnu-crypto.info,  Node: Transformer,  Next: Assembly,  Prev: Operation,  Up: Assemblies
+
+Transformer
+===========
+
+   A Transformer is an abstract representation of a two-way
+transformation that can be chained together with other instances of
+this type. Examples of such transformations in this library are:
+
+   * CascadeTransformer that adapts an instance of a `Cascade',
+
+   * PaddingTransformer that adapts an instance of
+     `gnu.crypto.pad.IPad', and finally
+
+   * DeflateTransformer that adapts a ZLib-based deflater/inflater
+     algorithm implementation.
+
+   The special type `LoopbackTransformer' is also available and is
+implicitly (and silently) added to each instance of an Assembly.
+
+   A Transformer is characterized by the followings:
+
+   * It can be chained to other instances, to form an Assembly.
+
+   * When configured in an Assembly, it can be set to apply its internal
+     transformation on the input data stream before (pre-processing) or
+     after (post-processing) passing the input data to the next element
+     in the chain. Note that the same type Transformer can be used in
+     either pre-processing, or post-processing modes.
+
+   * A special transformer -`LoopbackTransformer'- is used to close the
+     chain.
+
+   * A useful type of Transformer -one we're interested in- has
+     internal buffers. The distinction between a casual push (update)
+     operation, and the last one, allows to correctly flush any
+     intermediate bytes that may exist in those buffers.
+
+   To allow wiring Transformer instances together, a minimal output
+size in bytes is necessary. The trivial case of a value of `1' for such
+attribute practically means that no output buffering, from the previous
+element, is needed -which is independent of buffering the input if the
+Transformer implementation itself is block-based.
+
+   This class exposes one class attribute and three Factory methods.
+They are:
+
+ - Variable: String DIRECTION
+     The name of a property in the attributes map that is passed to the
+     `init' method, representing the transformation's desired wiring
+     direction. The mapped value should be a valid `Direction' value.
+     If this attribute is omitted, `Direction.FORWARD' is used.
+
+ - Function: Transformer getCascadeTransformer (Cascade CASCADE)
+     Returns the designated CASCADE instance wrapped in an Adapter for
+     use as a Transformer.
+
+ - Function: Transformer getPaddingTransformer (IPad PADDING)
+     Returns the designated PADDING instance wrapped in an Adapter for
+     use as a Transformer.
+
+ - Function: Transformer getDeflateTransformer ()
+     Returns a Transformer that underlies an implementation of the ZLib
+     algorithm, able to deflate (compress) and inflate (decompress)
+     data.
+
+   Concrete class instances of this abstract class, also expose the
+following instance methods:
+
+ - Function: void setMode (final Operation MODE)
+     Sets the operational mode of this Transformer to the designated
+     MODE value. Throws `IllegalStateException' if this instance has
+     already been assigned an operational mode.
+
+ - Function: boolean isPreProcessing ()
+     Returns `true' if this Transformer has been wired in
+     pre-processing mode; returns `false' otherwise. Throws an
+     `IllegalStateException' if this instance has not yet been assigned
+     an operational mode.
+
+ - Function: boolean isPostProcessing ()
+     Returns `true' if this Transformer has been wired in
+     post-processing mode; returns `false' otherwise. Throws an
+     `IllegalStateException' if this instance has not yet been assigned
+     an operational mode.
+
+ - Function: void init (java.util.Map ATTRIBUTES) throws
+          TransformerException
+     Initializes the Transformer for operation with specific
+     characteristics, indicated by the designated ATTRIBUTES. The
+     latter being a set of name-value pairs that describes the desired
+     future behavior of this instance. Throws an
+     `IllegalStateException' if the instance is already initialized.
+
+ - Function: int currentBlockSize ()
+     Returns the block-size of this Transformer. A value of `1'
+     indicates that this instance is block-agnostic.
+
+ - Function: void reset ()
+     Resets the Transformer for re-initialization and use with other
+     characteristics. This method always succeeds.
+
+ - Function: byte [] update (byte B) throws TransformerException
+     Convenience method that calls the method with same name and three
+     arguments, using a byte array of length `1' whose contents are the
+     designated byte B. Returns the result of transformation.  Throws
+     an `IllegalStateException' if the instance is not yet initialized.
+     Throws an `TransformerException' if a transformation-related
+     exception occurs during the operation.
+
+ - Function: byte [] update (byte[] IN) throws TransformerException
+     Convenience method that calls the same method with three
+     arguments. All bytes in IN, starting from index position 0 are
+     considered.  Returns the result of transformation. Throws an
+     `IllegalStateException' if the instance is not yet initialized.
+     Throws a `TransformerException' if a transformation-related
+     exception occurs during the operation.
+
+ - Function: byte [] update (byte[] IN, int OFFSET, int LENGTH) throws
+          TransformerException
+     Returns the result of processing a designated LENGTH bytes from a
+     given IN byte array, starting at position OFFSET. Throws an
+     `IllegalStateException' if the instance is not yet initialized.
+     Throws an `TransformerException' if a transformation-related
+     exception occurs during the operation.
+
+ - Function: byte [] lastUpdate () throws TransformerException
+     Convenience method that calls the same method with three
+     arguments. A zero-long byte array is used. Returns the result of
+     transformation.  Throws an `IllegalStateException' if the instance
+     is not yet initialized. Throws an `TransformerException' if a
+     transformation-related exception occurs during the operation.
+
+ - Function: byte [] lastUpdate (byte B) throws TransformerException
+     Convenience method that calls the method with same name and three
+     arguments, using a byte array of length `1' whose contents are the
+     designated byte B. Returns the result of transformation.  Throws
+     an `IllegalStateException' if the instance is not yet initialized.
+     Throws an `TransformerException' if a transformation-related
+     exception occurs during the operation.
+
+ - Function: byte [] lastUpdate (byte[] IN) throws TransformerException
+     Convenience method that calls the same method with three
+     arguments. All bytes in IN, starting from index position `0' are
+     considered.  Returns the result of transformation. Throws an
+     `IllegalStateException' if the instance is not yet initialized.
+     Throws an `TransformerException' if a transformation-related
+     exception occurs during the operation.
+
+ - Function: byte [] lastUpdate (byte[] IN, int OFFSET, int LENGTH)
+          throws TransformerException
+     Returns the result of processing a designated LENGTH bytes from
+     the given IN byte array, starting at index position OFFSET and
+     signals, at the same time, that this is the last push operation on
+     this Transformer. Throws an `IllegalStateException' if the
+     instance is not yet initialized. Throws an `TransformerException'
+     if a transformation-related exception occurs during the operation.
+
+
+File: gnu-crypto.info,  Node: Assembly,  Next: Assembly Example,  Prev: Transformer,  Up: Assemblies
+
+Assembly
+========
+
+   An Assembly is a construction consisting of a chain of Transformer
+elements; each wired in pre- or post- operational mode. This chain is
+(always) terminated by one `LoopbackTransformer' element.
+
+   Once constructed, and correctly initialized, the bulk of the methods
+available on the Assembly are delegated to the head of the Transformer
+chain of the Assembly.
+
+ - Variable: String DIRECTION
+     The name of a property in the attributes map that is passed to the
+     `init' method, representing the assembly's desired wiring
+     direction. The mapped value should be a valid `Direction' value.
+     If this attribute is omitted, `Direction.FORWARD' is used.
+
+ - Function: boolean addPreTransformer (Transformer T)
+     Adds the designated Transformer T, to the head of the current
+     chain, and signals that it should operate in pre-processing mode;
+     i.e.  it should apply its internal transformation algorithm on the
+     input data stream, before it passes that stream to the next
+     element in the chain. Throws an `IllegalArgumentException' if the
+     designated Transformer has a non-null tail; i.e. it is already an
+     element of a chain.
+
+ - Function: boolean addPostTransformer (Transformer T)
+     Adds the designated Transformer T, to the head of the current
+     chain, and signals that it should operate in post-processing mode;
+     i.e.  it should apply its internal transformation algorithm on the
+     input data stream, after it passes that stream to the next element
+     in the chain. Throws an `IllegalArgumentException' if the
+     designated Transformer has a non-null tail; i.e. it is already an
+     element of a chain.
+
+ - Function: void init (java.util.Map ATTRIBUTES) throws
+          TransformerException
+     Initializes the Assembly for operation with specific
+     characteristics, indicated by the designated ATTRIBUTES. The
+     latter being a set of name-value pairs that describes the desired
+     future behavior of this instance. Throws an
+     `IllegalStateException' if the instance is already initialized.
+
+ - Function: void reset ()
+     Resets the Assembly for re-initialization and use with other
+     characteristics. This method always succeeds.
+
+ - Function: byte [] update (byte B) throws TransformerException
+     Convenience method that calls the method with same name and three
+     arguments, using a byte array of length `1' whose contents are the
+     designated byte B. Returns the result of transformation.  Throws
+     an `IllegalStateException' if the instance is not yet initialized.
+     Throws an `TransformerException' if a transformation-related
+     exception occurs during the operation.
+
+ - Function: byte [] update (byte[] IN) throws TransformerException
+     Convenience method that calls the same method with three
+     arguments. All bytes in IN, starting from index position 0 are
+     considered.  Returns the result of transformation. Throws an
+     `IllegalStateException' if the instance is not yet initialized.
+     Throws a `TransformerException' if a transformation-related
+     exception occurs during the operation.
+
+ - Function: byte [] update (byte[] IN, int OFFSET, int LENGTH) throws
+          TransformerException
+     Returns the result of processing a designated LENGTH bytes from a
+     given IN byte array, starting at position OFFSET. Throws an
+     `IllegalStateException' if the instance is not yet initialized.
+     Throws an `TransformerException' if a transformation-related
+     exception occurs during the operation.
+
+ - Function: byte [] lastUpdate () throws TransformerException
+     Convenience method that calls the same method with three
+     arguments. A zero-long byte array is used. Returns the result of
+     transformation.  Throws an `IllegalStateException' if the instance
+     is not yet initialized. Throws an `TransformerException' if a
+     transformation-related exception occurs during the operation.
+
+ - Function: byte [] lastUpdate (byte B) throws TransformerException
+     Convenience method that calls the method with same name and three
+     arguments, using a byte array of length `1' whose contents are the
+     designated byte B. Returns the result of transformation.  Throws
+     an `IllegalStateException' if the instance is not yet initialized.
+     Throws an `TransformerException' if a transformation-related
+     exception occurs during the operation.
+
+ - Function: byte [] lastUpdate (byte[] IN) throws TransformerException
+     Convenience method that calls the same method with three
+     arguments. All bytes in IN, starting from index position `0' are
+     considered.  Returns the result of transformation. Throws an
+     `IllegalStateException' if the instance is not yet initialized.
+     Throws an `TransformerException' if a transformation-related
+     exception occurs during the operation.
+
+ - Function: byte [] lastUpdate (byte[] IN, int OFFSET, int LENGTH)
+          throws TransformerException
+     Returns the result of processing a designated LENGTH bytes from
+     the given IN byte array, starting at index position OFFSET and
+     signals, at the same time, that this is the last push operation on
+     this Transformer. Throws an `IllegalStateException' if the
+     instance is not yet initialized. Throws an `TransformerException'
+     if a transformation-related exception occurs during the operation.
+
+
+File: gnu-crypto.info,  Node: Assembly Example,  Prev: Assembly,  Up: Assemblies
+
+Example
+=======
+
+   The following example shows an Assembly that compresses its input
+data, before encrypting it with a Blowfish algorithm, in OFB mode, with
+PKCS7 padding.
+
+
+     import gnu.crypto.Registry;
+     import gnu.crypto.util.Util;
+     import gnu.crypto.assembly.Assembly;
+     import gnu.crypto.assembly.Cascade;
+     import gnu.crypto.assembly.Direction;
+     import gnu.crypto.assembly.Stage;
+     import gnu.crypto.assembly.Transformer;
+     import gnu.crypto.assembly.TransformerException;
+     import gnu.crypto.cipher.Blowfish;
+     import gnu.crypto.cipher.IBlockCipher;
+     import gnu.crypto.mode.IMode;
+     import gnu.crypto.mode.ModeFactory;
+     import gnu.crypto.pad.IPad;
+     import gnu.crypto.pad.PadFactory;
+     
+     
+     HashMap attributes = new HashMap();
+     HashMap modeAttributes = new HashMap();
+     
+     Cascade ofbBlowfish = new Cascade();
+     Object modeNdx = ofbBlowfish.append(
+         Stage.getInstance(
+             ModeFactory.getInstance(Registry.OFB_MODE, new Blowfish(), 8),
+             Direction.FORWARD));
+     
+     attributes.put(modeNdx, modeAttributes);
+     IPad pkcs7 = PadFactory.getInstance(Registry.PKCS7_PAD);
+     
+     Assembly asm = new Assembly();
+     asm.addPreTransformer(Transformer.getCascadeTransformer(ofbBlowfish));
+     asm.addPreTransformer(Transformer.getPaddingTransformer(pkcs7));
+     asm.addPreTransformer(Transformer.getDeflateTransformer());
+     
+     // plaintext and key material
+     byte[] km = new byte[] { 0,  1,  2,  3,  4,  5,  6,  7,  8};
+     byte[] iv = new byte[] {-1, -2, -3, -4, -5, -6, -7, -8, -9};
+     byte[] pt = new byte[] { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,  11};
+     byte[] tpt = new byte[11 * pt.length];
+     
+     // forward transformation
+     modeAttributes.put(IBlockCipher.KEY_MATERIAL, km);
+     modeAttributes.put(IMode.IV, iv);
+     attributes.put(Assembly.DIRECTION, Direction.FORWARD);
+     try
+       {
+         asm.init(attributes);
+       }
+     catch (TransformerException x)
+       {
+         x.printStackTrace(System.err);
+       }
+     
+     byte[] ct = null;
+     ByteArrayOutputStream baos = new ByteArrayOutputStream();
+     try
+       {
+         for (int i = 0; i < 10; i++)
+           { // transform in parts of 12-byte a time
+             System.arraycopy(pt, 0, tpt, i * pt.length, pt.length);
+             ct = asm.update(pt);
+             baos.write(ct, 0, ct.length);
+           }
+       }
+     catch (TransformerException x)
+       {
+         x.printStackTrace(System.err);
+       }
+     
+     try
+       {
+         System.arraycopy(pt, 0, tpt, 10 * pt.length, pt.length);
+         ct = asm.lastUpdate(pt);
+       }
+     catch (TransformerException x)
+       {
+         x.printStackTrace(System.err);
+       }
+     
+     baos.write(ct, 0, ct.length);
+     ct = baos.toByteArray();
+     
+     // reversed transformation
+     attributes.put(Assembly.DIRECTION, Direction.REVERSED);
+     try
+       {
+         asm.init(attributes);
+       }
+     catch (TransformerException x)
+       {
+         x.printStackTrace(System.err);
+       }
+     
+     byte[] ot = null;
+     try
+       {
+         ot = asm.lastUpdate(ct); // transform the lot in one go
+       }
+     catch (TransformerException x)
+       {
+         x.printStackTrace(System.err);
+       }
+
+
+File: gnu-crypto.info,  Node: Message Digests,  Next: Message Authentication Codes,  Prev: Cascades and Assemblies,  Up: Top
+
+Message Digests
+***************
+
+* Menu:
+
+* The IMessageDigest Interface::  The standard message digest interface.
+* The HashFactory Class::         How to obtain message digest impmementations.
+* Message Digest Example::        Simple example of how to hash data.
+
+   Message digests, or one-way hash functions, generate fixed-sized
+signatures from variable-sized texts, in such a way that it is
+computationally infeasible to determine the source text from the
+signature or to find a different text that hashes to the same
+signature. Hash functions in GNU Crypto are in the `gnu.crypto.hash'
+package, and are:
+
+   * MD2. MD2 is an early-generation hash function with an 128 bit
+     output size, developed by Ron Rivest at RSA Data Security, Inc.,
+     and described by Burton Kaliski in RFC 1319 [Kal92]. No
+     significant cryptanalysis has been published about MD2, but it is
+     still recommended that new applications use a different message
+     digest algorithm.
+
+   * MD4. MD4 was also developed by Ron Rivest at RSA Data Security,
+     Inc.  and is described by Rivest in RFC 1320 [Riv92a]. MD4 has a
+     128 bit output size. It is not recommended that MD4 be used in new
+     applications.
+
+   * MD5. MD5 is a successor to MD4, developed by Ron Rivest and
+     described in RFC 1321 [Riv92b], and has a 128 bit output size. MD5
+     is not widely considered secure any longer, and using other
+     message digests with longer output sizes is recommended.
+
+   * RIPEMD. RIPEMD-128 and RIPEMD-160 have 128 bit and 160 bit output
+     sizes, and were developed by Hans Dobbertin, Antoon Bosselaers,
+     and Bart Preneel as successors to the RIPEMD hash.
+
+   * The Secure Hash Algorithm, SHA-1. The secure hash algorithm was
+     developed by the National Institute for Standards and Technology,
+     published in FIPS 180-1. SHA-1 has a 160 bit output length. FIPS
+     180-2, dated August 2002, added the specifications for three
+     additional SHA implementations for output sizes of 256-, 384- and
+     512-bit respectively.  These three algorithms are referred to as
+     SHA-256, SHA-384 and SHA-512.
+
+   * Tiger is a hash function created by Lars Anderson and Eli Biham,
+     optimized for 64-bit architectures. It can produce a 192, 160, or
+     128 bit hash. [AnB96]
+
+   * Whirlpool. Whirlpool was designed by Paulo S. L. M. Barreto and
+     Vincent Rijmen, and has a 512 bit output length.
+
+
+
+File: gnu-crypto.info,  Node: The IMessageDigest Interface,  Next: The HashFactory Class,  Prev: Message Digests,  Up: Message Digests
+
+IMessageDigest Interface
+========================
+
+SCENE MISSING
+                   Figure 8: Message Digest class diagram
+
+ - Function: void update (byte B)
+     Updates the hash being computed with a single byte.
+
+ - Function: void update (byte[] BUF, int OFFSET, int LENGTH)
+     Update the hash being computed with LENGTH of the bytes in BUF
+     starting at OFFSET. The programmer should ensure that BUF is at
+     least offset + length bytes long.
+
+ - Function: byte [] digest ( )
+     Finishes the computation of the hash and returns the result as a
+     byte array. The input read thusfar may be padded first (depending
+     on the algorithm), and the instance is reset.
+
+ - Function: java.lang.String name ( )
+     Returns the canonical name of this message digest.
+
+ - Function: int hashSize ( )
+     Returns the size of the final hash (the byte array returned by
+     `digest()') in bytes.
+
+ - Function: int blockSize ( )
+     Returns the algorithm's internal block size, in bytes.
+
+ - Function: void reset ( )
+     Resets the internal state of the hash, making its state equivalent
+     to that of a newly-created instance.
+
+ - Function: boolean selfTest ( )
+     Performs a simple conformance test of the underlying
+     implementation, to guard against implementation or environment
+     errors. Returns `true' if the test succeeds, `false' if it fails.
+
+ - Function: java.lang.Object clone ( )
+     Copies the state of this instance into a new instance, returning
+     the copy. This copy can then be used in the same way as the
+     original instance.
+
+
+File: gnu-crypto.info,  Node: The HashFactory Class,  Next: Message Digest Example,  Prev: The IMessageDigest Interface,  Up: Message Digests
+
+HashFactory Class
+=================
+
+   Message digest instances are created with the static factory method:
+
+ - Function: IMessageDigest getInstance (java.lang.String NAME)
+     Creates a message digest instance for the algorithm NAME, or
+     `null' if there is no such algorithm.
+
+   The `HashFactory' class also defines the method:
+
+ - Function: java.util.Set getNames ( )
+     Returns a set of the names (strings) of all available message
+     digest implementations.
+
+
+File: gnu-crypto.info,  Node: Message Digest Example,  Prev: The HashFactory Class,  Up: Message Digests
+
+Example
+=======
+
+     IMessageDigest md = HashFactory.getInstance("SHA-1");
+     md.update(input, 0, input.length);
+     
+     byte[] digest = md.digest();
+
+
+File: gnu-crypto.info,  Node: Message Authentication Codes,  Next: Keypairs and Key Agreements,  Prev: Message Digests,  Up: Top
+
+Message Authentication Codes
+****************************
+
+* Menu:
+
+* The IMac Interface::         The standard MAC interface.
+* The MacFactory Class::       How to obtain MAC implementations.
+* TMMH/16::                    Parameters for the TMMH/16 algorithm.
+* UMAC-32::                    Parameters for the UMAC algorithm.
+* MAC Example::                An example illustrating MAC usage.
+
+   A message authentication code, or MAC, is akin to a _keyed hash
+function_, in that it produces a fixed-length identifier for
+variable-length data along with a key. The purpose of a MAC is to
+guarantee the integrity and authenticity of data, as it is
+computationally infesible to fake a MAC without knowledge of the key.
+MAC algorithms in GNU Crypto are in the `gnu.crypto.mac' package, and
+include:
+
+   * Hash-based MAC. Hash-based MACs, also called HMACs, use a normal
+     message digest algorithm to compute the code based on input data
+     and the key. GNU Crypto therefore implements an HMAC for every
+     message digest it supports, and the name of a HMAC is usually
+     "HMAC-" concatenated with the message digest's name; see the
+     previous chapter on message digests for further discussion.
+
+   * The Truncated Multi-Modular Hash function, TMMH. TMMH/16 and
+     TMMH/32 are universal hash functions; GNU Crypto implements
+     TMMH/16.  TMMH/16 has a variety of parameters, which are described
+     later in this chapter. TMMH is described in [McG02].
+
+   * UHASH-32. UHASH-32 is a keyed hash function that outputs a hash of
+     8 bytes. The key supplied to this MAC must be 16 bytes long. UHASH
+     is described in [Kro00].
+
+   * UMAC-32. The UMAC family of algorithms are parameterized, meaning
+     that low-level choices such as endianness and the underlying
+     cryptographic primitive are not fixed. The UMAC algorithms are
+     described in [Kro00].  GNU Crypto implements UMAC-32, which
+     performs well on 32- and 64-bit architectures, and has a key
+     length of 16 bytes and an output length of 8 bytes. See the
+     section on UMAC-32 for further discussion.
+
+
+
+File: gnu-crypto.info,  Node: The IMac Interface,  Next: The MacFactory Class,  Prev: Message Authentication Codes,  Up: Message Authentication Codes
+
+IMac Interface
+==============
+
+SCENE MISSING
+          Figure 9: Message Authentication Code (MAC) class diagram
+
+ - Variable: java.lang.String MAC_KEY_MATERIAL
+     A key in the attributes map passed to the `init' method. The value
+     is taken to be a byte array, which contains the key as raw bytes.
+     The length of the key must be at least the length of the computed
+     hash in the case of hash-based MACs.
+
+ - Variable: java.lang.String TRUNCATED_SIZE
+     The actual size of the returned hash, taken from the first bytes
+     of the raw result. The value must be a `java.lang.Integer'
+     containing the desired length, which should not be smaller than 80
+     bits or one half the MAC's usual output length, whichever is
+     larger.
+
+ - Function: void init (java.util.Map ATTRIBUTES) throws
+          java.security.InvalidKeyException,
+          java.lang.IllegalStateException
+     Initializes this MAC instance with a specified attributes map,
+     which maps keys (such as `MAC_KEY_MATERIAL') to parameters (such
+     as the key bytes). Throws a `java.security.InvalidKeyException' if
+     the key is unacceptable or omitted, and trows a
+     `java.lang.IllegalStateException' if this instance has already been
+     initialized.
+
+ - Function: void update (byte B)
+     Continues the computation of the MAC with a single input byte, B.
+
+ - Function: void update (byte[] IN, int OFFSET, int LENGTH)
+     Continues the computation of the MAC with a portion of the byte
+     array IN, starting at OFFSET and considering LENGTH bytes.
+
+ - Function: byte [] digest ( )
+     Finishes the computation of the MAC and returns it in a new byte
+     array.  The instance is reset after this method returns.
+
+ - Function: void reset ( )
+     Resets the internal state of this instance, which may then be
+     re-initialized.
+
+ - Function: int macSize ( )
+     Returns the size of the final MAC, in bytes.
+
+ - Function: java.lang.String name ( )
+     Returns the canonical name of this algorithm.
+
+ - Function: java.lang.Object clone ( )
+     Returns a copy of this instance, which may be used the same way as
+     the original.
+
+ - Function: boolean selfTest ( )
+     Performs a simple conformance test on this implementation; returns
+     `true' if the test is successful, `false' if not.
+
+
+File: gnu-crypto.info,  Node: The MacFactory Class,  Next: TMMH/16,  Prev: The IMac Interface,  Up: Message Authentication Codes
+
+MacFactory Class
+================
+
+   MAC instances are created with the following factory method:
+
+ - Function: IMac getInstance (java.lang.String NAME)
+     Returns an instance of the MAC algorithm named NAME, or `null' if
+     no such algorithm exists.
+
+   Additionally the `MacFactory' class defines the following method:
+
+ - Function: java.util.Set getNames ( )
+     Returns a `java.util.Set' of the names of all available MAC
+     algorithms.
+
+
+File: gnu-crypto.info,  Node: TMMH/16,  Next: UMAC-32,  Prev: The MacFactory Class,  Up: Message Authentication Codes
+
+TMMH/16
+=======
+
+   In addition to the key, the TMMH/16 requires three more parameters
+passed to its `init' method, using the following three keys:
+
+ - Variable: java.lang.String TAG_LENGTH
+     The output length, in bytes, represented as a `java.lang.Integer'.
+     This value must be an even integer between 2 and 64.
+
+ - Variable: java.lang.String KEYSTREAM
+     An instance of `gnu.crypto.prng.IRandom', which is to serve as the
+     source of random bytes for this instance.
+
+ - Variable: java.lang.String PREFIX
+     A byte array of `TAG_LENGTH' bytes. If this parameter is omitted an
+     all-zero byte array will be used. This value is XORed with the
+     digest just before it is returned.
+
+
+File: gnu-crypto.info,  Node: UMAC-32,  Next: MAC Example,  Prev: TMMH/16,  Up: Message Authentication Codes
+
+UMAC-32
+=======
+
+   The UMAC-32 algorithm requires, in addition to the key, a nonce byte
+array. The byte array must be 1-16 bytes of random data, which is
+passed to the `init' method of `IMac' in the attributes map.  `UMac32'
+defined an additional key for this map:
+
+ - Variable: java.lang.String NONCE_MATERIAL
+     The key for the nonce material for the attributes map. The value
+     mapped must be a byte array of size 1-16 bytes.
+
+
+File: gnu-crypto.info,  Node: MAC Example,  Prev: UMAC-32,  Up: Message Authentication Codes
+
+Example
+=======
+
+     IMac mac = MacFactory.getInstance("HMAC-SHA-160");
+     HashMap attributes = new HashMap();
+     attributes.put(IMac.MAC_KEY_MATERIAL, key_bytes);
+     attributes.put(IMac.TRUNCATED_SIZE, new Integer(12));
+     mac.init(attributes);
+     
+     mac.update(input, 0, input.length);
+     
+     byte[] result = mac.digest();
+
+
+File: gnu-crypto.info,  Node: Keypairs and Key Agreements,  Next: Signatures,  Prev: Message Authentication Codes,  Up: Top
+
+Keypairs and Key Agreements
+***************************
+
+* Menu:
+
+* Keypairs::                       Keypair generation, encoding and decoding.
+* Key Agreements::                 Key agreement protocols.
+
+   This chapter is about keypairs. In the first section, keypair
+generation and keypair encoding and decoding concepts and API are
+described. The second section deals with key agreement protocols.
+
+   The code is organised into subpackages, each pertaining to a keypair
+algorithm. Four such algorithms are covered in this version of the
+library. They are:
+
+   * dh: Diffie-Hellman. The apparent intractability of this algorithm
+     forms the basis for the security of many cryptographic schemes.
+
+   * dss: Digital Signature Standard.
+
+   * rsa: Named after its inventors Ron Rivest, Adi Shamir, and Leonard
+     Adleman. Its security is based on the intractibility of the integer
+     factorization problem.
+
+   * srp6: As described in Thomas Wu's paper "SRP-6: Improvements and
+     Refinements to the Secure Remote Password Protocol," dated October
+     29, 2002. [Wu02]
+
+
+File: gnu-crypto.info,  Node: Keypairs,  Next: Key Agreements,  Prev: Keypairs and Key Agreements,  Up: Keypairs and Key Agreements
+
+Keypairs
+========
+
+* Menu:
+
+* Algorithm-Specific Attributes::     Key generation algorithm-specific info.
+* The IKeyPairGenerator Interface::   Generating key pairs.
+* The KeyPairGeneratorFactory Class:: Creating key pair generator instances.
+* The IKeyPairCodec Interface::       Storing key pairs.
+* Keypair Generation Example::        Example of using keypair generators.
+
+   The following class diagram shows the most important classes in the
+library that collaborate to implement the keypair generation
+functionality:
+
+SCENE MISSING
+                 Figure 10: Keypair generation class diagram
+ The next figure is a
+sequence diagram showing the entities and messages involved in using
+those classes:
+
+SCENE MISSING
+               Figure 11: Keypair generation sequence diagram
+
+
+File: gnu-crypto.info,  Node: Algorithm-Specific Attributes,  Next: The IKeyPairGenerator Interface,  Prev: Keypairs,  Up: Keypairs
+
+Algorithm-Specific Attributes
+=============================
+
+Diffie-Hellman
+--------------
+
+   Each of these constants are defined in the
+`gnu.crypto.key.dh.GnuDHKeyPairGenerator' class.
+
+ - Variable: java.lang.String SOURCE_OF_RANDOMNESS
+     Property name for the source of random bits to use when generating
+     keys. The value mapped by this property must be of type
+     `gnu.crypto.prng.IRandom' which must have been previously
+     initialized. If undefined, then a default PRNG is used.
+
+ - Variable: java.lang.String DH_PARAMETERS
+     Property name for an optional
+     `javax.crypto.spec.DHGenParameterSpec' instance to use for this
+     generator.
+
+ - Variable: java.lang.String PRIME_SIZE
+     Property name of the size in bits (an instance of
+     `java.lang.Integer') of the public prime P.
+
+ - Variable: java.lang.String EXPONENT_SIZE
+     Property name of the size in bits (an instance of
+     `java.lang.Integer') of the private exponent X.
+
+DSS
+---
+
+   Each of these constants are defined in the
+`gnu.crypto.key.dss.DSSKeyPairGenerator' class.
+
+ - Variable: java.lang.String SOURCE_OF_RANDOMNESS
+     Property name for the source of random bits to use when generating
+     keys. The value mapped by this property must be of type
+     `gnu.crypto.prng.IRandom' which must have been previously
+     initialized. If undefined, then a default PRNG is used.
+
+ - Variable: java.lang.String DSS_PARAMETERS
+     Property name of an optional `java.security.spec.DSAParameterSpec'
+     instance to use for this generator's P, Q, and G values. The
+     default is to generate these values or use pre-computed ones,
+     depending on the value of the USE_DEFAULTS attribute.
+
+ - Variable: java.lang.String MODULUS_LENGTH
+     Property name for the modulus length, in bits. The value mapped by
+     this property must be of type `java.lang.Integer'.
+
+ - Variable: java.lang.String USE_DEFAULTS
+     Property name of an instance of `java.lang.Boolean' indicating
+     wether or not to use pre-computed default values for the algorithm
+     parameters. Three sets of such parameters are also provided
+     covering 512-bit (KEY_PARAMS_512, 768-bit (KEY_PARAMS_768) and
+     1024-bit (KEY_PARAMS_512) keylength.
+
+RSA
+---
+
+   Each of these constants are defined in the
+`gnu.crypto.key.rsa.RSAPSSKeyPairGenerator' class.
+
+ - Variable: java.lang.String SOURCE_OF_RANDOMNESS
+     Property name for the source of random bits to use. The value
+     mapped by this property must be of type `gnu.crypto.prng.IRandom',
+     which must have been previously initialized. If undefined, then a
+     default PRNG is used.
+
+ - Variable: java.lang.String MODULUS_LENGTH
+     Property name for the length, in bits, of the modulus. The value
+     mapped by this property must be of type `java.lang.Integer'.
+
+ - Variable: java.lang.String RSA_PARAMETERS
+     Property name for the optional values of E and N. The value mapped
+     by this property must be of type
+     `java.security.spec.RSAKeyGenParameterSpec' Random or default
+     values will be used instead if this parameter is not specified.
+
+SRP6
+----
+
+   Each of these constants are defined in the
+`gnu.crypto.key.srp6.SRPKeyPairGenerator' class.
+
+ - Variable: java.lang.String SOURCE_OF_RANDOMNESS
+     Property name for the source of random bits to use. The value
+     mapped by this property must be of type `gnu.crypto.prng.IRandom',
+     which must have been previously initialized. If undefined, then a
+     default PRNG is used.
+
+ - Variable: java.lang.String MODULUS_LENGTH
+     Property name of the length (an instance of `java.lang.Integer')
+     of the modulus N of an SRP key.
+
+ - Variable: java.lang.String SHARED_MODULUS
+     Property name of the value of the modulus N of an SRP key. The
+     value mapped by this property, if/when defined, must be of type
+     `java.math.BigInteger'. It is an optional parameter. If undefined,
+     then a new value is generated, unless USE_DEFAULTS is set to TRUE.
+
+ - Variable: java.lang.String GENERATOR
+     Property name of the value of the generator G of an SRP key. The
+     value mapped by this property, if/when defined, must be of type
+     `java.math.BigInteger'. It is an optional parameter. If undefined,
+     then a new value is generated, unless USE_DEFAULTS is set to TRUE.
+
+ - Variable: java.lang.String USE_DEFAULTS
+     Property name of an instance of `java.lang.Boolean' indicating
+     wether or not to use pre-computed default values for the algorithm
+     parameters. Seven sets of such parameters are also provided
+     covering 512-bit (N_512, 640-bit (N_640), 768-bit (N_768),
+     1024-bit (N_1024), 1280-bit (N_1280), 1536-bit (N_1536) and
+     2048-bit (N_2048) shared modulus length.
+
+
+File: gnu-crypto.info,  Node: The IKeyPairGenerator Interface,  Next: The KeyPairGeneratorFactory Class,  Prev: Algorithm-Specific Attributes,  Up: Keypairs
+
+The IKeyPairGenerator Interface
+===============================
+
+   All signature algorithms in GNU Crypto have their corresponding key
+pair generators, which implement this interface and provide the
+following methods:
+
+ - Function: void setup (java.util.Map ATTRIBUTES) throws
+          java.lang.IllegalArgumentException
+     Initializes this key pair generator with the given attrubutes. The
+     property names used are algorithm-dependent, and are described in
+     the next section. This method throws a
+     `java.lang.IllegalArgumentException' if the given attributes are
+     incorrect or incomplete.
+
+ - Function: java.security.KeyPair generate ()
+     Generates and returns a new key pair based on the attributes used
+     to configure this instance.
+
+ - Function: java.lang.String name ()
+     Returns the canonical name of the algorithm this class generates
+     key pairs for.
+
+
+File: gnu-crypto.info,  Node: The KeyPairGeneratorFactory Class,  Next: The IKeyPairCodec Interface,  Prev: The IKeyPairGenerator Interface,  Up: Keypairs
+
+The KeyPairGeneratorFactory Class
+=================================
+
+ - Function: IKeyPairGenerator getInstance (java.lang.String ALGORITHM)
+     Returns an instance of a key pair generator for ALGORITHM, or
+     `null' if no such generator is available.
+
+ - Function: java.util.Set getNames ()
+     Returns an unmodifiable set of all available key pair generator
+     algorithms, each entry a `java.lang.String'.
+
+
+File: gnu-crypto.info,  Node: The IKeyPairCodec Interface,  Next: Keypair Generation Example,  Prev: The KeyPairGeneratorFactory Class,  Up: Keypairs
+
+The IKeyPairCodec Interface
+===========================
+
+   A key pair codec is used to externalize and de-externalize the key
+pairs used in GNU Crypto. There is no factory class, but rather the
+implementations have public, zero-argument constructors. The available
+codecs are:
+
+   * `gnu.crypto.key.dh.DHKeyPairRawCodec', for encoding and decoding
+     Diffie-Hellman key pairs.
+
+   * `gnu.crypto.key.dss.DSSKeyPairRawCodec', for encoding and decoding
+     DSS key pairs.
+
+   * `gnu.crypto.key.rsa.RSAKeyPairRawCodec', for encoding and decoding
+     RSA key pairs.
+
+   * `gnu.crypto.key.srp6.SRPKeyPairRawCodec', for encoding and decoding
+     SRP key pairs.
+
+ - Variable: int RAW_FORMAT
+     Constant identifying the "raw" format used by GNU Crypto.
+
+ - Function: java.security.PrivateKey decodePrivateKey (byte[] ENCODED)
+     Decodes a private key from its external representation, returning
+     it as an appropriate instance of `java.security.PrivateKey'. This
+     function will throw a `java.lang.IllegalArgumentException' if the
+     encoded bytes cannot be decoded or are incorrect.
+
+ - Function: java.security.PublicKey decodePublicKey (byte[] ENCODED)
+     Decodes a public key from its external representation, returning it
+     as an appropriate instance of `java.security.PublicKey'. This
+     function will throw a `java.lang.IllegalArgumentException' if the
+     encoded bytes cannot be decoded or are incorrect.
+
+ - Function: byte [] encodePrivateKey (java.security.PrivateKey KEY)
+     Encodes a private key to its external representation, returning the
+     encoded bytes. This function will throw a
+     `java.lang.IllegalArgumentException' if the key cannot be encoded
+     by this instance.
+
+ - Function: byte [] encodePublicKey (java.security.PublicKey KEY)
+     Encodes a public key to its external representation, returning the
+     encoded bytes. This function will throw a
+     `java.lang.IllegalArgumentException' if the key cannot be encoded
+     by this instance.
+
+ - Function: int getFormatID ()
+     Returns the format identifier of this codec, such as `RAW_FORMAT'.
+
+
+File: gnu-crypto.info,  Node: Keypair Generation Example,  Prev: The IKeyPairCodec Interface,  Up: Keypairs
+
+Example
+=======
+
+   The following example demonstrates how to generate a DSS keypair.
+
+
+     IKeyPairGenerator kpg = KeyPairGeneratorFactory.getInstance(Registry.DSS_KPG);
+     HashMap map = new HashMap();
+     map.put(DSSKeyPairGenerator.MODULUS_LENGTH, new Integer(512));
+     map.put(DSSKeyPairGenerator.USE_DEFAULTS, new Boolean(false));
+     kpg.setup(map);
+     KeyPair kp = kpg.generate();
+     
+     BigInteger p1 = ((DSAPublicKey) kp.getPublic()).getParams().getP();
+     BigInteger p2 = ((DSAPrivateKey) kp.getPrivate()).getParams().getP();
+     
+     BigInteger q1 = ((DSAPublicKey) kp.getPublic()).getParams().getQ();
+     BigInteger q2 = ((DSAPrivateKey) kp.getPrivate()).getParams().getQ();
+     
+     BigInteger g1 = ((DSAPublicKey) kp.getPublic()).getParams().getG();
+     BigInteger g2 = ((DSAPrivateKey) kp.getPrivate()).getParams().getG();
+
+
+File: gnu-crypto.info,  Node: Key Agreements,  Next: Protocols,  Prev: Keypairs,  Up: Keypairs and Key Agreements
+
+Key Agreements
+==============
+
+* Menu:
+
+* Protocols::                         What this library provides.
+* The IKeyAgreementParty Interface::  The basic key agreement protocol.
+* The KeyAgreementFactory class::     The key agreement Factory class.
+* Key Agreement Example::             A practical example.
+
+
+File: gnu-crypto.info,  Node: Protocols,  Next: The IKeyAgreementParty Interface,  Prev: Key Agreements,  Up: Key Agreements
+
+Protocols
+=========
+
+   A key agreement protocol is a means by which two parties engage in an
+exchange of incoming/outgoing messages, at the end of which, both
+participants would share a common secret.  Such a shared secret can then
+be used to provide different security services such as replay detection,
+integrity protection, and confidentiality protection.
+
+SCENE MISSING
+                   Figure 12: Key agreement class diagram
+ Four key agreement protocols
+are implemented in this library. They are:
+
+   * Diffie-Hellman basic version, also known as the Static-Static Mode
+     in RFC-2631. [RFC2631]
+
+   * ElGamal version, knwon as half-certified Diffie-Hellman key
+     agreement, as well as Ephemeral-Static Mode in RFC-2631. [RFC2631]
+
+   * Secure Remote Password protocol known as SRP-6. [Wu02]
+
+   * The version of SRP-6 as used in the SASL-SRP proposed mechanism.
+
+   The following sequence diagram shows a possible use of the key
+agreement API classes to negotiate a Diffie-Hellman protocol:
+
+SCENE MISSING
+                  Figure 13: Key agreement sequence diagram
+
+
+File: gnu-crypto.info,  Node: The IKeyAgreementParty Interface,  Next: The KeyAgreementFactory class,  Prev: Protocols,  Up: Key Agreements
+
+The IKeyAgreementParty Interface
+================================
+
+ - Function: java.lang.String name ()
+     Returns the canonical name of the key agreement protocol.
+
+ - Function: void init (java.util.Map ATTRIBUTES) throws
+          gnu.crypto.key.KeyAgreementException
+     Initializes this instance. The ATTRIBUTES parameter must be a
+     `java.util.Map' that has the required name-value pairs needed for
+     this instance. An instance of
+     `gnu.crypto.key.KeyAgreementException' is thrown if an exception
+     occurs during this process.
+
+ - Function: gnu.crypto.key.OutgoingMessage processMessage
+          (gnu.crypto.key.IncomingMessage IN) throws
+          gnu.crypto.key.KeyAgreementException
+     Processes an incoming message (IN) at one end, generating a
+     message (the returned object which may be null) that will be
+     processed by the other party(ies). A
+     `gnu.crypto.key.KeyAgreementException' may be thrown if an
+     exception occurs during this process.
+
+ - Function: boolean isComplete ()
+     Returns `true' if the party in the key agreement protocol exchange
+     has completed its part of the exchange; and `false' otherwise. If
+     this method returns `false', then an
+     `java.lang.IllegalStateException' is thrown for any method
+     invocation except `init'.
+
+ - Function: byte [] getSharedSecret () throws
+          gnu.crypto.key.KeyAgreementException
+     Returns the byte array containing the shared secret as generated
+     by this party. A `gnu.crypto.key.KeyAgreementException' is thrown
+     if the key agreement is not yet initialised, or is initialised but
+     the exchange is still in progress.
+
+ - Function: void reset ()
+     Resets this instance for re-use with another set of attributes.
+
+
+File: gnu-crypto.info,  Node: The KeyAgreementFactory class,  Next: Key Agreement Example,  Prev: The IKeyAgreementParty Interface,  Up: Key Agreements
+
+The KeyAgreementFactory class
+=============================
+
+   Instances for two-party key agreement protocols can be instantiated
+with the Factory methods of this class:
+
+ - Function: gnu.crypto.key.IKeyAgreementParty getPartyAInstance
+          (java.lang.String NAME)
+     Creates an instance of an initiator of a key agreement protocol
+     given the NAME of this protocol. A `null' if there is no such
+     protocol implementation.
+
+ - Function: gnu.crypto.key.IKeyAgreementParty getPartyBInstance
+          (java.lang.String NAME)
+     Creates an instance of a recipient of a key agreement protocol
+     given the NAME of this protocol. A `null' if there is no such
+     protocol implementation.
+
+ - Function: java.util.Set getNames ()
+     Returns a set of the names (`java.lang.String') of all available
+     key agreement protocols.
+
+
+File: gnu-crypto.info,  Node: Key Agreement Example,  Prev: The KeyAgreementFactory class,  Up: Key Agreements
+
+Example, Key agreement
+======================
+
+   The following example shows ...
+
+
+     IKeyPairGenerator kpg =
+         KeyPairGeneratorFactory.getInstance(Registry.DH_KPG);
+     kpg.setup(new HashMap()); // use default values
+     KeyPair kpA = kpg.generate();
+     KeyPair kpB = kpg.generate();
+     IKeyAgreementParty A = new DiffieHellmanSender();
+     IKeyAgreementParty B = new DiffieHellmanReceiver();
+     
+     Map mapA = new HashMap();
+     mapA.put(DiffieHellmanKeyAgreement.KA_DIFFIE_HELLMAN_OWNER_PRIVATE_KEY,
+              kpA.getPrivate());
+     Map mapB = new HashMap();
+     mapB.put(DiffieHellmanKeyAgreement.KA_DIFFIE_HELLMAN_OWNER_PRIVATE_KEY,
+              kpB.getPrivate());
+     
+     A.init(mapA);
+     B.init(mapB);
+     
+     // (1) A -> B: g**x mod p
+     OutgoingMessage out = A.processMessage(null);
+     
+     // (2) B -> A: g^^y mod p
+     out = B.processMessage(new IncomingMessage(out.toByteArray()));
+     
+     byte[] k2 = B.getSharedSecret();
+     
+     // A computes the shared secret
+     out = A.processMessage(new IncomingMessage(out.toByteArray()));
+     
+     byte[] k1 = A.getSharedSecret();
+
+
+File: gnu-crypto.info,  Node: Signatures,  Next: Random Numbers,  Prev: Keypairs and Key Agreements,  Up: Top
+
+Signatures
+**********
+
+* Menu:
+
+* The ISignature Interface::          The base signature interface.
+* The SignatureFactory Class::        Creating signature instances.
+* The ISignatureCodec Interface::     Storing signatures.
+* Signature Example::                 Programming example.
+
+   This chapter describes the digital signature schemes implemented in
+GNU Crypto. The package for all signature and related classes is
+`gnu.crypto.sig'. The following signature schemes are implemented:
+
+   * DSS, the Digital Signature Standard, was standardized in 1994 by
+     the National Institute of Standards and Technology in the Federal
+     Information Processing Standards (FIPS) Publication 186 [FIPS186].
+     DSS uses the secure hash algorithm (SHA-1) internally, and
+     produces a 160 bit signature.
+
+   * RSA-PSS. This is a digital signature scheme based on the
+     combination of the RSA algorithm with the Probabilistic Signature
+     Scheme (PSS) encoding scheme. RSA was invented by Ron Rivest, Adi
+     Shamir, and Leonard Adleman; the PSS encoding was developed by
+     Mihir Bellare and Phillip Rogaway. During efforts to adopt RSA-PSS
+     into the IEEE P1363a standards effort, certain adaptations to the
+     original version of RSA-PSS were made by Mihir Bellare and Phillip
+     Rogaway and also by Burt Kaliski (the editor of IEEE P1363a) to
+     facilitate implementation and integration into existing protocols.
+     [JoK00]
+

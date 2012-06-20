@@ -1,0 +1,96 @@
+This is gnu-crypto.info, produced by makeinfo version 4.5 from
+gnu-crypto.texi.
+
+This manual is for the GNU Crypto library, version 2.0.1.
+
+   Copyright (C) 2003 The Free Software Foundation, Inc.
+
+
+   Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back Cover Texts. A
+copy of the license is included in the section entitled "GNU Free
+Documentation License".  
+
+Indirect:
+gnu-crypto.info-1: 572
+gnu-crypto.info-2: 45820
+gnu-crypto.info-3: 93537
+gnu-crypto.info-4: 133703
+
+Tag Table:
+(Indirect)
+Node: Top572
+Node: Introduction4761
+Node: Ciphers7709
+Node: The IBlockCipher Interface11406
+Node: The CipherFactory Class15573
+Node: Cipher Example16417
+Node: Modes17336
+Node: The IMode Interface20140
+Node: The ModeFactory Class23008
+Node: Mode Example24258
+Node: Padding25430
+Node: The IPad Interface26725
+Node: The PadFactory Class28494
+Node: Padding Example29096
+Node: Cascades and Assemblies30157
+Node: Cascades31847
+Node: Direction32329
+Node: Stage33024
+Node: Cascade37758
+Node: Cascade Example43092
+Node: Assemblies44647
+Node: Operation45128
+Node: Transformer45820
+Node: Assembly53299
+Node: Assembly Example58794
+Node: Message Digests62178
+Node: The IMessageDigest Interface64720
+Node: The HashFactory Class66427
+Node: Message Digest Example67046
+Node: Message Authentication Codes67311
+Node: The IMac Interface69536
+Node: The MacFactory Class71985
+Node: TMMH/1672567
+Node: UMAC-3273388
+Node: MAC Example73936
+Node: Keypairs and Key Agreements74376
+Node: Keypairs75584
+Node: Algorithm-Specific Attributes76502
+Node: The IKeyPairGenerator Interface81348
+Node: The KeyPairGeneratorFactory Class82400
+Node: The IKeyPairCodec Interface82973
+Node: Keypair Generation Example85227
+Node: Key Agreements86198
+Node: Protocols86624
+Node: The IKeyAgreementParty Interface87834
+Node: The KeyAgreementFactory class89728
+Node: Key Agreement Example90727
+Node: Signatures91979
+Node: The ISignature Interface93537
+Node: The SignatureFactory Class97110
+Node: The ISignatureCodec Interface97716
+Node: Signature Example99514
+Node: Random Numbers100359
+Node: The IRandom Interface101869
+Node: The PRNGFactory Class103081
+Node: ARCFour103551
+Node: MDGenerator104218
+Node: ICMGenerator105049
+Node: UMacGenerator106545
+Node: PRNG Example107206
+Node: JCE Support107689
+Node: Installing the JCE Classes108228
+Node: Installing the GNU Crypto Provider109753
+Node: List of Available Algorithms110638
+Node: GNU Free Documentation License111942
+Node: Copying GNU Crypto131845
+Node: GNU General Public License133703
+Node: Acknowledgements152980
+Node: Figure Index153937
+Node: Index154993
+Node: References173743
+
+End Tag Table

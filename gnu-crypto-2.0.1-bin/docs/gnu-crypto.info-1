@@ -1,0 +1,1085 @@
+This is gnu-crypto.info, produced by makeinfo version 4.5 from
+gnu-crypto.texi.
+
+This manual is for the GNU Crypto library, version 2.0.1.
+
+   Copyright (C) 2003 The Free Software Foundation, Inc.
+
+
+   Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back Cover Texts. A
+copy of the license is included in the section entitled "GNU Free
+Documentation License".  
+
+File: gnu-crypto.info,  Node: Top,  Next: Introduction,  Up: (dir)
+
+Programming with GNU Crypto 2.0.1
+*********************************
+
+* Menu:
+
+* Introduction::                     About GNU Crypto.
+* Ciphers::                          Using basic ciphers
+* Modes::                            Using ciphers in other modes.
+* Padding::                          Padding schemes.
+* Cascades and Assemblies::          A high-level API.
+* Message Digests::                  Computing message digests.
+* Message Authentication Codes::     Computing MACs.
+* Keypairs and Key Agreements::      Keypair generation and key agreements.
+* Signatures::                       Digital signing and verification.
+* Random Numbers::                   Creating streams of pseudo-random bits.
+* JCE Support::                      The GNU Crypto JCE provider.
+* GNU Free Documentation License::   Copying this manual.
+* Copying GNU Crypto::               Copying GNU Crypto.
+* GNU General Public License::       The GNU General Public License.
+* Acknowledgements::                 Contributors to GNU Crypto.
+* Figure Index::                     Index of figures.
+* Index::                            Full index.
+* References::                       Sources for more information.
+
+Ciphers
+=======
+* The IBlockCipher Interface::     The standard block cipher interface.
+* The CipherFactory Class::        How to obtain a cipher instance.
+* Cipher Example::                 A simple programming example.
+
+Modes
+=====
+* The IMode Interface::            The standard mode interface.
+* The ModeFactory Class::          How to obtain a mode instance.
+* Mode Example::                   Example of transforming with modes.
+
+Padding
+=======
+* The IPad Interface::             The standard pad interface.
+* The PadFactory Class::           How to obtain a pad instance.
+* Padding Example::                Example of padding and unpadding.
+
+Cascades and Assemblies
+=======================
+* Cascades::                       The Cascade pattern and classes.
+* Assemblies::                     The Assembly pattern and classes.
+
+Message Digests
+===============
+* The IMessageDigest Interface::   The standard message digest interface.
+* The HashFactory Class::          How to obtain a message digest.
+* Message Digest Example::         Example of hashing data.
+
+Message Authentication Codes
+============================
+* The IMac Interface::             The standard MAC interface.
+* The MacFactory Class::           How to obtain a MAC instance.
+* TMMH/16::                        Extra parameters for TMMH/16.
+* UMAC-32::                        Extra parameter for UMAC-32.
+* MAC Example::                    Example of creating a MAC.
+
+Keypairs and Key Agreements
+===========================
+* Keypairs::                       Keypair generation, encoding and decoding.
+* Key Agreements::                 Key agreement protocols.
+
+Signatures
+==========
+* The ISignature Interface::          The base signature interface.
+* The SignatureFactory Class::        Creating signature instances.
+* The ISignatureCodec Interface::     Storing signatures.
+* The IKeyPairGenerator Interface::   Generating key pairs.
+* Algorithm-Specific Attributes::     Attributes specific to DSS and RSA-PSS.
+* The KeyPairGeneratorFactory Class:: Creating key pair generator instances.
+* The IKeyPairCodec Interface::       Storing key pairs.
+* Signature Example::                 Programming example.
+
+Random Numbers
+==============
+* The IRandom Interface::       The standard PRNG interface.
+* The PRNGFactory Class::       How to create an IRandom instance.
+* ARCFour::                     Extra properties in the ARCFOUR PRNG.
+* MDGenerator::                 Extra properties in the hash-based PRNG.
+* ICMGenerator::                Extra properties in the ICM PRNG.
+* UMacGenerator::               Extra properties in the UMac PRNG.
+* PRNG Example::                Programming example.
+
+JCE Support
+===========
+* Installing the JCE Classes::         How to install the clean-room JCE.
+* Installing the GNU Crypto Provider:: Using the GNU Crypto provider.
+* List of Available Algorithms::       Algorithms available through the JCE.
+
+
+File: gnu-crypto.info,  Node: Introduction,  Next: Ciphers,  Prev: Top,  Up: Top
+
+Introduction
+************
+
+   GNU Crypto is a free, high-quality, versatile, and provably correct
+implementation of a wide array of cryptographic primitives and tools
+written in the Java programming language. It provides an application
+programmer's interface (API) to a number of cryptographic algorithms, a
+variety of end-user tools, and a full Java cryptography architecture
+(JCA) provider.
+
+   The algorithms implemented by GNU Crypto include symmetric key
+ciphers for protecting data, message digests and message authentication
+codes for proving the integrity of data, digital signature schemes for
+proving the authenticity of data, and algorithms for generating
+unguessable pseudo-random numbers. The API is deliberately designed to
+be low-level, with access to the bare innards of the cryptographic
+algorithms involved, so more complex libraries and programs can be
+built.
+
+   GNU Crypto does not implement any algorithms that are encumbered by
+patents, and does not rely on any non-free code or documentation. GNU
+Crypto is designed to run in any Java environment that is compatible
+with Sun's Java runtime version 1.2 or later. This includes GNU
+Classpath, a free software implementation of the Java class libraries,
+and free virtual machines such as Kissme, Japhar, Kaffe, and the Jikes
+RVM.
+
+   This manual covers the basics for using the GNU Crypto API in new
+Java programs. It describes the public API for all the implemented
+algorithms, describes which algorithms are implemented, and provides
+simple examples of each. The reader is assumed to have some knowledge
+about cryptography and the Java programming language.
+
+   This is not a reference about cryptography, the Java programming
+language, or the Java cryptography architecture API. For an introduction
+to cryptography, we recommend the following books:
+
+   * Bruce Schneier, Applied Cryptography: Protocols, Algorithms, and
+     Source Code in C, Second Edition [Sch95].
+
+   * Alfred J. Menezes, Paul C. Van Oorschot, and Scott A. Vanstone,
+     Handbook of Applied Cryptography [MOV96].
+
+   The JCA API documentation is available on-line from either Sun
+Microsystems (<http://java.sun.com/products/jce/doc/apidoc/>) or the
+Legion of the Bouncy Castle
+(<http://www.bouncycastle.org/docs/index.html>). There are copious
+references about the Java programming language available (although, as
+far as the author is aware, no free manuals are available at the time of
+writing).
+
+   GNU Crypto is always available on the web from
+<http://www.gnu.org/software/gnu-crypto/>, via anonymous FTP from
+<ftp://ftp.gnupg.org/gcrypt/gnu-crypto/>. The mailing list for bugs,
+help, and discussion is <gnu-crypto-discuss@gnu.org>, and additional
+information about the project is available on Savannah at
+<http://savannah.gnu.org/projects/gnu-crypto/>.
+
+   "Java" is a registered trademark of Sun Microsystems.
+
+
+File: gnu-crypto.info,  Node: Ciphers,  Next: Modes,  Prev: Introduction,  Up: Top
+
+Ciphers
+*******
+
+* Menu:
+
+* The IBlockCipher Interface::     The standard block cipher interface.
+* The CipherFactory Class::        How to obtain a cipher instance.
+* Cipher Example::                 A simple example.
+
+   This chapter describes the symmetric ciphers implemented by GNU
+Crypto, and how to create and use them. The package name for all GNU
+Crypto ciphers is `gnu.crypto.cipher'. The ciphers implemented by GNU
+Crypto are:
+
+   * The Advanced Encryption Standard, or the AES. The AES is a
+     symmetric block cipher with a 128 bit block size and a key size of
+     128, 192, or 256 bits. The AES was adopted as US FIPS PUB 197
+     [NIST01] by the National Institute of Standards and Technology
+     (NIST) in November 2001 after a five-year process of
+     standarization and public comment. The AES was written by Joan
+     Daemen and Vincent Rijmen for the AES process, and is derived from
+     the Rijndael cipher.
+
+   * Anubis. The Anubis cipher is a symmetric block cipher with a 128
+     bit block size and a key size from 128 to 320 bits, with increments
+     of 32 bits. Anubis was designed by Paulo Barreto and Vincent
+     Rijmen, and has been submitted as a candidate cipher to the New
+     European Schemes for Signatures, Integrity, and Encryption
+     (NESSIE) process.
+
+   * Blowfish. The Blowfish symmetric block cipher was designed by
+     Bruce Schneier. It has a 64 bit block size and a key size of up to
+     448 bits. Blowfish encryption and decryption are very fast in
+     software, especially on 32 bit microprocessor architectures.
+
+   * DES. DES is the Data encryption standard, a 64-bit cipher with a
+     56-bit key. DES was developed by IBM in the 1970's for a
+     standardization process begun by the National Bureau of Standards
+     (now NIST). DES should not be used in new applications in favor of
+     the new standard, AES, except for compatibility.
+
+   * Identity cipher. The identity, or null cipher, is not a true
+     cipher as it does not transform the data input, but rather copies
+     it directly to the output.
+
+   * Khazad. The Khazad cipher is a symmetric block cipher with a 64
+     bit block size and a 128 bit key size. Khazad was designed by Paulo
+     Barreto and Vincent Rijmen, and has been submitted as a candidate
+     cipher to the New European Schemes for Signatures, Integrity, and
+     Encryption (NESSIE) process.
+
+   * Rijndael. Rijndael is a symmetric block cipher written by Joan
+     Daemen and Vincent Rijmen as a candidate to the Advanced Encryption
+     Standard process, and was adopted as the AES. Rijndael
+     additionally has a 192 and 256 bit block size.
+
+   * Serpent. The Serpent cipher was designed by Ross Anderson, Eli
+     Biham, and Lars Knudsen as a proposed cipher for the Advanced
+     Encryption Standard. Serpent has a 128 bit block size, and a key
+     size of 128, 192, or 256 bits.
+
+   * Square. The Square cipher was designed by Joan Daemen and Vincent
+     Rijmen and was cryptanalyzed by Lars Knudsen. It has a 128 bit
+     block size and a 128 bit key size.
+
+   * Triple-DES, or DESede, is a combined cipher based on the Data
+     Encryption Standard. It is the iteration of three seperate
+     instances of DES with three independent keys, and therefore has a
+     64 bit block size and a key size of 168 bits.
+
+   * Twofish. The Twofish cipher was designed by Bruce Schneier, John
+     Kelsey, Doug Whiting, David Wagner, Chris Hall, and Niels Ferguson
+     as a proposed cipher for the Advanced Encryption Standard. Twofish
+     has a 128 bit block size, and a key size of 128, 192, or 256 bits.
+
+
+
+File: gnu-crypto.info,  Node: The IBlockCipher Interface,  Next: The CipherFactory Class,  Prev: Ciphers,  Up: Ciphers
+
+The IBlockCipher Interface
+==========================
+
+SCENE MISSING
+                       Figure 1: Ciphers class diagram
+
+   All ciphers in GNU Crypto implement the `IBlockCipher' interface,
+and support all the methods listed in this section.
+
+ - Variable: java.lang.String CIPHER_BLOCK_SIZE
+     A property name in the attributes map that is passed to the `init'
+     method, representing the cipher's desired block size. The mapped
+     value should be a `java.lang.Integer' of the cipher's block size,
+     in bytes. If this attribute is omitted, the cipher's default block
+     size is used.
+
+ - Variable: java.lang.String KEY_MATERIAL
+     A property name in the attributes map that is passed to the `init'
+     method, representing the bytes that are to compose the cipher's
+     key. The mapped value must be a byte array, and its length must be
+     one of the cipher's supported key sizes.
+
+ - Function: void init (java.util.Map ATTRIBUTES) throws
+          java.security.InvalidKeyException,
+          java.lang.IllegalStateException
+     Initializes the cipher for transforming data. The ATTRIBUTES
+     parameter must be a `java.util.Map' that has, at least, a mapping
+     between the `KEY_MATERIAL' property name to a byte array containing
+     the key. Ciphers _may_ define other property names. If the supplied
+     byte array is not an acceptable key, this method throws a
+     `java.security.InvalidKeyException'. If this instance has already
+     been initialized, this method throws a
+     `java.lang.IllegalStateException'.
+
+ - Function: java.lang.String name ( )
+     Returns the cipher's canonical name.
+
+ - Function: int defaultBlockSize ( )
+     Returns the default block size, in bytes.
+
+ - Function: int defaultKeySize ( )
+     Returns the default key size, in bytes.
+
+ - Function: java.util.Iterator blockSizes ( )
+     Returns a `java.util.Iterator' of the cipher's supported block
+     sizes. Each element of the iterator is a `java.lang.Integer'.
+
+ - Function: java.util.Iterator keySizes ( )
+     Returns a `java.util.Iterator' of the cipher's supported key sizes.
+     Each element of the iterator is a `java.lang.Integer'.
+
+ - Function: java.lang.Object clone ( )
+     Returns a clone of this cipher. The cloned instance must be
+     initialized, as this method will not clone the cipher's internal
+     key.
+
+ - Function: int currentBlockSize ( ) throws
+          java.lang.IllegalStateException
+     Returns the cipher's current block size, in bytes, or will throw a
+     `java.lang.IllegalStateException' if this instance has not been
+     initialized.
+
+ - Function: void reset ( )
+     Resets this instance, which may then be re-initialized.
+
+ - Function: void encryptBlock (byte[] PLAINTEXT, int INOFFSET, byte[]
+          CIPHERTEXT, int OUTOFFSET) throws
+          java.lang.IllegalStateException
+     Encrypts a block of bytes from PLAINTEXT starting at INOFFSET,
+     storing the encrypted bytes in CIPHERTEXT, starting at OUTOFFSET.
+     It is up to the programmer to ensure that there is at least one
+     full block in PLAINTEXT from INOFFSET and space for one full block
+     in CIPHERTEXT from OUTOFFSET. A `java.lang.IllegalStateException'
+     will be thrown if the cipher has not been initialized.
+
+ - Function: void decryptBlock (byte[] CIPHERTEXT, int INOFFSET, byte[]
+          PLAINTEXT, int OUTOFFSET) throws
+          java.lang.IllegalStateException
+     Decrypts a block of bytes from CIPHERTEXT starting at INOFFSET,
+     storing the encrypted bytes in PLAINTEXT, starting at OUTOFFSET.
+     It is up to the programmer to ensure that there is at least one
+     full block in CIPHERTEXT from INOFFSET and space for one full
+     block in PLAINTEXT from OUTOFFSET. A
+     `java.lang.IllegalStateException' will be thrown if the cipher has
+     not been initialized.
+
+ - Function: boolean selfTest ( )
+     Performs a simple test of conformance, to ensure that there are no
+     implementation or system errors. This method returns `true' if the
+     test succeeds; `false' otherwise.
+
+
+File: gnu-crypto.info,  Node: The CipherFactory Class,  Next: Cipher Example,  Prev: The IBlockCipher Interface,  Up: Ciphers
+
+The CipherFactory Class
+=======================
+
+   The ciphers in GNU Crypto can usually be initiallized directly
+through their constructors, but the preferred way is to use the
+`CipherFactory' class, with the following method:
+
+ - Function: static IBlockCipher getInstance (java.lang.String NAME)
+     Returns a new cipher instance for the cipher named NAME, or `null'
+     if no such cipher exists. This method will throw a
+     `java.lang.InternalError' if the new instance's self-test fails.
+
+   The class also defines this method:
+
+ - Function: static java.util.Set getNames ( )
+     This method returns a `java.util.Set' of the names (each element of
+     type `java.lang.String') of all supported ciphers.
+
+
+File: gnu-crypto.info,  Node: Cipher Example,  Prev: The CipherFactory Class,  Up: Ciphers
+
+Example
+=======
+
+   The following example transforms the plaintext to the ciphertext, and
+the ciphertext back to the plaintext, using the AES in electronic
+codebook mode with no padding. Note also the classes for cipher modes
+and padding schemes for more complex constructions.
+
+
+     IBlockCipher cipher = CipherFactory.getInstance("AES");
+     Map attributes = new HashMap();
+     attributes.put(IBlockCipher.CIPHER_BLOCK_SIZE, new Integer(16));
+     attributes.put(IBlockCipher.KEY_MATERIAL, key_bytes);
+     cipher.init(attributes);
+     int bs = cipher.currentBlockSize();
+     
+     for (int i = 0; i + bs < pt.length; i += bs)
+        {
+           cipher.encryptBlock(pt, i, ct, i);
+        }
+     
+     for (int i = 0; i + bs < cpt.length; i += bs)
+        {
+           cipher.decryptBlock(ct, i, cpt, i);
+        }
+
+
+File: gnu-crypto.info,  Node: Modes,  Next: Padding,  Prev: Ciphers,  Up: Top
+
+Modes
+*****
+
+* Menu:
+
+* The IMode Interface::             The standard mode interface.
+* The ModeFactory Class::           How to obtain a mode instance.
+* Mode Example::                    A simple programming example.
+
+   Cipher modes operate on the next level up from the underlying block
+cipher. They transform the blocks going in and out of the cipher in ways
+to give them desirable properties in certain circumstances. The cipher
+modes implemented by GNU Crypto, which is contained in the
+`gnu.crypto.mode' package and are referenced herein by their
+three-letter abbreviations described below, are:
+
+   * Cipher block chaining mode. The "CBC" mode makes every block of
+     the ciphertext depend upon all previous blocks by adding feedback
+     to the transformation. This is done by XORing the plaintext with
+     the previous ciphertext (or, with the first block, an
+     initialization vector) before it is transformed. That is,
+     encryption looks like: C[i] = ENCRYPT(k, P_i ^ C[i-1]); and
+     decryption is P[i] = C[i-1] ^ DECRYPT(C[i]).
+
+   * Counter mode. Counter mode, referred to as "CTR" mode, is one of a
+     class of sequenced cipher modes that turn the underlying cipher
+     into a keystream. Counter mode relys on a simple counter register
+     that is updated for every block processed. For plaintexts   P[1]
+     ... P[n], ciphertexts   C[1] ... C[n], counter elements   T[1] ...
+     T[n], and an encryption function   ENCRYPT(k, ...), encryption is
+     defined as   C[i] = P[i] ^ ENCRYPT(k, T[i]) and decryption as
+     P[i] = C[i] ^ ENCRYPT(k, T[i]).
+
+   * Electronic codebook mode. Or "ECB" mode, is the most obvious
+     cipher mode: the cipher block is the direct output of the forward
+     function, and the plain block is the direct output of the inverse
+     function. That is, encryption is C_i = E_k(P_i) and decryption is
+     P_i = E_k^\bgroup-1\egroup(C_i).
+
+   * Integer counter mode. "ICM" mode has features in common with
+     counter mode described above. The counter, T_i, is computed by T_i
+     = (T_0 + i) \bmod 256^b, where b is the cipher's block size. T_0
+     is initialized to the integer representation of some
+     initialization vector. The keystream bytes are then E_k(T_i).
+     Encryption and decryption are then C_i = P_i \oplus E_k(T_i) and
+     P_i = C_i \oplus E_k(T_i), respectively.
+
+   * Output feeback mode. "OFB" mode creates a keystream by repeatedly
+     iterating the underlying block cipher over an initialization
+     vector.  That is, the ith keystream block is X_i = E(X_\bgroup
+     i-1\egroup) for 1 < i \leq n, and X_1 = IV. Like the other stream
+     modes, the input block i is transformed by the exclusive-or of the
+     block with X_i.
+
+
+
+File: gnu-crypto.info,  Node: The IMode Interface,  Next: The ModeFactory Class,  Up: Modes
+
+The IMode Interface
+===================
+
+   The `IMode' interface is similar to the `IBlockCipher' interface,
+except modes have a state associated with them, e.g.  whether the
+instance is used for encryption or decryption. The `IMode' interface is
+usually the one that is used when encrypting or decrypting;
+`IBlockCipher' is used when the lowest level--the cipher function
+itself--needs to be accessed. `IMode' extends `IBlockCipher' interface,
+and thus all methods specified in that interface are implemented in
+modes, and have the same meaning. The properties passed to the `init'
+method of `IBlockCipher' may also be passed to the `init' mehtod of
+`IMode', along with the following property names.
+
+SCENE MISSING
+                         Figure 2: Modes class diagram
+
+ - Variable: java.lang.String STATE
+     The property name for the mode's state, as passed to the `init'
+     method. Values for this property are an `java.lang.Integer'
+     containing either the `ENCRYPTION' constant or the `DECRYPTION'
+     constant.
+
+ - Variable: int ENCRYPTION
+     The value passed for the `STATE' property, wrapped in a
+     `java.lang.Integer', which indicates that the instance is to be
+     used for encryption.
+
+ - Variable: int DECRYPTION
+     The value passed for the `STATE' property, wrapped in a
+     `java.lang.Integer', which indicates that the instance is to be
+     used for decryption.
+
+ - Variable: java.lang.String MODE_BLOCK_SIZE
+     The property name for the block size of this mode. The value for
+     this propery should be a `java.lang.Integer' of the block size. If
+     omitted, the underlying cipher's block size is used.
+
+ - Variable: java.lang.String IV
+     The property name for the initialization vector to initialize this
+     mode with, if required. The value should be a byte array equal in
+     size to the `MODE_BLOCK_SIZE' property. If omitted a byte array
+     consisting of zeros is used.
+
+ - Function: void update (byte[] IN, int INOFFSET, byte[] OUT, int
+          OUTOFFSET) throws java.lang.IllegalStateException
+     Transforms the block in IN starting at INOFFSET into the block in
+     OUT starting at OUTOFFSET. Encryption or decryption is performed
+     depending upon the value passed along with the `state' property
+     given to the `init' method. A `java.lang.IllegalStateException' is
+     thrown if this instance has not been initialized, and it is up to
+     the programmer to ensure that there is one full block in IN
+     starting at INOFFSET, and enough space for one full block in OUT
+     starting at OUTOFFSET. Since modes can have states, and may
+     require that the be used in a particular sequence, using this
+     method is preferred over the `encryptBlock' and `decryptBlock'
+     methods of `IBlockCipher'.
+
+
+File: gnu-crypto.info,  Node: The ModeFactory Class,  Next: Mode Example,  Prev: The IMode Interface,  Up: Modes
+
+The ModeFactory Class
+=====================
+
+   The preferred way to get mode instances is through the `ModeFactory'
+class, from one of the following methods:
+
+ - Function: static IMode getInstance (java.lang.String MODE,
+          java.lang.String CIPHER, int CIPHERBLOCKSIZE)
+     Returns an instance of CIPHER wrapped in an instance of MODE,
+     initialized to a block size of CIPHERBLOCKSIZE, or returns `null'
+     if no appropriate cipher or mode is available. The MODE argument
+     is one of the names described above, and CIPHER is one of the
+     names described in the Ciphers chapter.
+
+ - Function: static IMode getInstance (java.lang.String MODE,
+          IBlockCipher CIPHER, int CIPHERBLOCKSIZE)
+     Returns an instance of MODE using the already-initialized CIPHER,
+     initializing the mode with a block size of CIPHERBLOCKSIZE, or
+     returns `null' if no appropriate mode is available.
+
+   Additionally the following method is defined:
+
+ - Function: static java.util.Set getNames ()
+     This method returns a `java.util.Set' of the names (each element of
+     type `java.lang.String') of all supported modes.
+
+
+File: gnu-crypto.info,  Node: Mode Example,  Prev: The ModeFactory Class,  Up: Modes
+
+Example
+=======
+
+   The following example encrypts and decrypts a byte array with the
+AES in CFB mode. See the next chapter on padding for instances where
+the input is not a multiple of the cipher or mode's block size.
+
+     IMode mode = ModeFactory.getInstance("CFB", "AES", 16);
+     Map attributes = new HashMap();
+     
+     // These attributes are defined in gnu.crypto.cipher.IBlockCipher.
+     attributes.put(IMode.KEY_MATERIAL, key_bytes);
+     attributes.put(IMode.CIPHER_BLOCK_SIZE, new Integer(16));
+     
+     // These attributes are defined in IMode.
+     attributes.put(IMode.STATE, new Integer(IMode.ENCRYPTION));
+     attributes.put(IMode.IV, iv_bytes);
+     mode.init(attributes);
+     int bs = mode.currentBlockSize();
+     
+     for (int i = 0; i + bs < pt.length; i += bs)
+        {
+           mode.update(pt, i, ct, i);
+        }
+     
+     mode.reset();
+     attributes.put(IMode.STATE, new Integer(IMode.DECRYPTION);
+     mode.init(attributes);
+     
+     for (int i = 0; i + bs < ct.length; i += bs)
+        {
+           mode.update(ct, i, cpt, i);
+        }
+
+
+File: gnu-crypto.info,  Node: Padding,  Next: Cascades and Assemblies,  Prev: Modes,  Up: Top
+
+Padding
+*******
+
+* Menu:
+
+* The IPad Interface::              Standard padding scheme interface.
+* The PadFactory Class::            How to obtain an IPad implementation.
+* Padding Example::             Simple example illustrating padding.
+
+   A padding scheme is merely a standard method of ensuring that the
+input to be encrypted is a multiple of the cipher's block size. The
+padding schemes of GNU Crypto are in package `gnu.crypto.pad' and
+include:
+
+   * PKCS #7. PKCS #7 (referred to as "PKCS7" in GNU Crypto) pads the
+     input P with the quantity w = b - (|P| \bmod b), where b is the
+     cipher's block size, encoded as w bytes. That is, if the input is
+     5 bytes shorter than the required length, then the input is padded
+     with the byte equal to 5 five times. This padding scheme supports
+     block sizes of 2 \leq b \leq 256 bytes.
+
+   * Trailing bit complement. The "TBC" pad appends the complement of
+     the last bit in the input until the input is the desired length.
+     That is, if the last bit is `1', then the input is padded with `0',
+     and if the last bit is `0', then the input is padded with `1'.
+     This padding scheme supports block sizes up to 256 bytes.
+
+
+File: gnu-crypto.info,  Node: The IPad Interface,  Next: The PadFactory Class,  Prev: Padding,  Up: Padding
+
+The IPad Interface
+==================
+
+SCENE MISSING
+                       Figure 3: Padding class diagram
+ The `IPad' interface is used
+seperately from ciphers and modes. The methods defined by padding
+schemes are:
+
+ - Function: void init (int BS) throws java.lang.IllegalStateException,
+          java.lang.IllegalArgumentException
+     Initializes this padding scheme for the specified block size. This
+     method throws a `java.lang.IllegalStateException' if this instance
+     has already been initialized but not reset, and will throw a
+     `java.lang.IllegalArgumentException' if BS is not a supported
+     block size.
+
+ - Function: void reset ( )
+     Resets this instance, which may then be re-initialized later.
+
+ - Function: byte [] pad (byte[] INPUT, int OFFSET, int LENGTH)
+     Examines the bytes in INPUT as the plaintext, starting at OFFSET
+     and considering LENGTH bytes, and returns the appropriate,
+     possibly empty, byte array containing the padding.
+
+ - Function: int unpad (byte[] INPUT, int OFFSET, int LENGTH) throws
+          WrongPaddingException
+     Examines the bytes in INPUT as the plaintext, starting at OFFSET
+     and considering LENGTH bytes, and returns the number of bytes that
+     should be trimmed off the end of INPUT to unpad the plaintext.
+     Throws a `WrongPaddingException' if the padding bytes to not
+     correspond to the bytes expected by this padding scheme.
+
+ - Function: java.lang.String name ( )
+     Returns the canonical name of this instance.
+
+ - Function: boolean selfTest ( )
+     Performs a simple conformance test on the padding scheme, to avoid
+     implementation or run time errors.
+
+
+File: gnu-crypto.info,  Node: The PadFactory Class,  Next: Padding Example,  Prev: The IPad Interface,  Up: Padding
+
+The PadFactory Class
+====================
+
+   Padding instances are created with the following method in the
+`PadFactory' class:
+
+ - Function: static IPad getInstance (String PAD)
+     Gets an instance of the padding scheme with name PAD, or `null' if
+     no such padding scheme is available.
+
+   This class also defines this method:
+
+ - Function: static java.util.Set getNames ()
+     Returns a set of strings with the names of all padding schemes
+     implemented by GNU Crypto.
+
+
+File: gnu-crypto.info,  Node: Padding Example,  Prev: The PadFactory Class,  Up: Padding
+
+Example
+=======
+
+   The following example pads an input buffer, transforms the padded
+buffer with already-initialized `IMode' instances, then unpads the
+output buffer.
+
+     IPad padding = IPad.getInstance("PKCS7");
+     padding.init(blockSize);
+     byte[] pad = padding.pad(input, 0, input.length);
+     byte[] pt = new byte[input.length + pad.length];
+     byte[] ct = new byte[pt.length];
+     byte[] cpt = new byte[pt.length];
+     System.arraycopy(input, 0, pt, 0, input.length);
+     System.arraycopy(pad, 0, pt, input.length, pad.length);
+     
+     for (int i = 0; i + blockSize < pt.length; i += blockSize)
+        {
+           enc.update(pt, i, ct, i);
+        }
+     
+     for (int i = 0; i + blockSize < ct.length; i += blockSize)
+        {
+           dec.update(ct, i, cpt, i);
+        }
+     
+     int unpad = padding.unpad(cpt, 0, cpt.length);
+     byte[] output = new byte[cpt.length - unpad];
+     System.arraycopy(cpt, 0, output, 0, output.length);
+
+
+File: gnu-crypto.info,  Node: Cascades and Assemblies,  Next: Message Digests,  Prev: Padding,  Up: Top
+
+Cascades and Assemblies
+***********************
+
+* Menu:
+
+* Cascades::                       The Cascade pattern and classes.
+* Assemblies::                     The Assembly pattern and classes.
+
+   This chapter describes two patterns implemneted by the GNU Crypto
+library that allow users to combine the basic cipher (and other)
+primitives into higher level components in order to offer more flexible
+functionalities.  These two patterns are: Cascade and Assembly.
+
+   The Cascade is a means of assembling block cipher Modes of Operations
+into an ordered sequence of stages. A stage is a representation of a
+Mode (of Operations) wired in a designated direction: FORWARD or
+REVERSED. A Mode staged in the FORWARD direction would encrypt input
+blocks, producing ciphertext, while the same Mode, wired in the REVERSED
+direction would do the opposite; i.e. decrypt an input text producing a
+plaintext.
+
+   In the simplest case, all stages in a Cascade have k-bit keys, and
+the stage inputs and outputs are all n-bit quantities. The stage
+ciphers may differ (general cascade of ciphers), or all be identical
+(cascade of identical ciphers).
+
+   An Assembly is a construction of an ordered set of Transformer
+objects. Each Transformer is wired to operate in PRE_PROCESSING or
+POST_PROCESSING mode -the Transformer's Operation. In PRE_PROCESSING,
+the input is first processed by the Transformer before being passed to
+the rest of the chain, while in POST_PROCESSING state, the Transformer
+first passes the input to the rest of the chain and only processes the
+output of the returned data.
+
+
+File: gnu-crypto.info,  Node: Cascades,  Next: Assemblies,  Prev: Cascades and Assemblies,  Up: Cascades and Assemblies
+
+Cascades
+========
+
+* Menu:
+
+* Direction::                      The Direction enumeration class.
+* Stage::                          The Stage abstract class.
+* Cascade::                        The Cascade class.
+* Cascade Example::                DES-EDE as a Cascade of three DES Stages.
+
+SCENE MISSING
+                       Figure 4: Cascade class diagram
+
+
+File: gnu-crypto.info,  Node: Direction,  Next: Stage,  Prev: Cascades,  Up: Cascades
+
+Direction
+=========
+
+   An enumeration type for wiring Stage instances into Cascade chains,
+as well as for operating a Cascade in a given direction.
+
+   This class cannot be instantiated; but its (only) two possible values
+can be used for constructing Stage elements, and initializing Cascade
+instances:
+
+   * FORWARD: equivalent to `gnu.crypto.mode.IMode#ENCRYPTION'; and its
+     inverse value
+
+   * REVERSED: equivalent to `gnu.crypto.mode.IMode#DECRYPTION'.
+
+   This class offers a Factory method to return the inverse of a
+designated Direction instance:
+
+ - Function: Direction reverse (Direction D)
+
+
+File: gnu-crypto.info,  Node: Stage,  Next: Cascade,  Prev: Direction,  Up: Cascades
+
+Stage
+=====
+
+   This class represents a Stage in a Cascade cipher.
+
+   Each stage may be either an implementation of a Block Cipher Mode of
+Operation (an instance of `gnu.crypto.mode.IMode') or another Cascade
+cipher (an instance of `Cascade'). Each Stage has also a natural
+operational direction when constructed for inclusion within a Cascade.
+This natural direction dictates how data flows from one Stage into
+another when stages are chained together in a Cascade. One can think of
+a Stage and its natural direction as the specification of how to wire
+the Stage into the chain.
+
+   The following diagrams may help understand the paradigm. The first
+shows two stages chained together, each wired in the same direction
+(`Direction#FORWARD').
+
+       FORWARD         FORWARD
+   +------+       +-------+
+   |      |       |       |
+   |  +--in --+   |   +--in --+
+---+  | Stage |   |   | Stage |  +---
+      +--out--+   |   +--out--+  |
+          |       |       |      |
+          +-------+       +------+
+                  Figure 5: Stages wired in same direction
+ The second diagram shows
+two stages, one in a `Direction#FORWARD' direction, while the other is
+wired in a `Direction#REVERSED' direction.
+
+       FORWARD         REVERSED
+   +------+               +------+
+   |      |               |      |
+   |  +--in --+       +--in --+  |
+---+  | Stage |       | Stage |  +---
+      +--out--+       +--out--+
+          |               |
+          +---------------+
+               Figure 6: Stages wired in different directions
+
+ - Variable: gnu.crypto.assembly.Stage DIRECTION
+     A property name in the attributes map that is passed to the `init'
+     method, representing the stage's desired wiring direction. The
+     mapped value should be a valid `gnu.crypto.assembly.Direction'
+     value. If this attribute is omitted, `Direction.FORWARD' is used.
+
+   The following Factory methods, allow instantiation of concrete Stage
+class instances that adapt instances of either `gnu.crypto.mode.IMode'
+or (other) `Cascade' classes to operate as a Stage in a Cascade:
+
+ - Function: Stage getInstance (IMode MODE, Direction FORWARDDIRECTION)
+     Given a designated MODE (an instance of `gnu.crypto.mode.IMode',
+     and a Direction, this method returns a Stage instance that adapts
+     this designated MODE to operate as a Stage in a Cascade.
+
+ - Function: Stage getInstance (Cascade CASCADE, Direction
+          FORWARDDIRECTION)
+     Given a designated CASCADE (an instance of
+     `gnu.crypto.assembly.Cascade', and a Direction, this method
+     returns a Stage instance that adapts this designated CASCADE to
+     operate as a Stage in another Cascade.
+
+   The following instance methods are also available:
+
+ - Function: java.util.Set blockSizes ()
+     Returns the `Set' of supported block sizes for this Stage.  Each
+     element in the returned `Set' is an instance of `Integer'.
+
+ - Function: void init (java.util.Map ATTRIBUTES) throws
+          java.security.InvalidKeyException
+     Initializes the stage for operation with specific characteristics.
+     Those characteristics are defined in ATTRIBUTES: a set of
+     name-value pairs that describes the desired future behavior of
+     this instance. This method throws an `IllegalStateException' if
+     the instance is already initialized. It throws an
+     `java.security.InvalidKeyException' if the key data (used to
+     initialize the underlying Mode or Cascade) is invalid.
+
+ - Function: int currentBlockSize () throws IllegalStateException
+     Returns the current block size for this stage. Throws an
+     `IllegalStateException' if the instance is not yet initialized.
+
+ - Function: void reset ()
+     Resets the stage for re-initialization and use with other
+     characteristics.  This method always succeeds.
+
+ - Function: void update (byte[] IN, int INOFFSET, byte[] OUT, int
+          OUTOFFSET)
+     Processes exactly one block of plaintext (if wired in the
+     `Direction#FORWARD' direction) or ciphertext (if wired in the
+     `Direction#REVERSED' direction), from IN starting at INOFFSET, and
+     storing the resulting bytes in OUT, starting at OUTOFFSET. An
+     `IllegalStateException' will be thrown if the stage has not yet
+     been initialized.
+
+ - Function: boolean selfTest ()
+     Conducts a simple correctness test that consists of basic symmetric
+     encryption / decryption test(s) for all supported block and key
+     sizes of underlying block cipher(s) wrapped by Mode leafs. The
+     test also includes one (1) variable key Known Answer Test (KAT)
+     for each block cipher. It returns `true' if the tests succeed, and
+     `false' otherwise.
+
+
+File: gnu-crypto.info,  Node: Cascade,  Next: Cascade Example,  Prev: Stage,  Up: Cascades
+
+Cascade
+=======
+
+   A Cascade Cipher is the concatenation of two or more block ciphers
+each with independent keys. Plaintext is input to the first stage; the
+output stage `i' is input to stage `i + 1'; and the output of the last
+stage is the Cascade's ciphertext output.
+
+   In the simplest case, all stages in a Cascade have k-bit keys, and
+the stage inputs and outputs are all n-bit quantities. The stage
+ciphers may differ (general cascade of ciphers), or all be identical
+(cascade of identical ciphers).
+
+   The term block ciphers used above refers to implementations of
+`gnu.crypto.mode.IMode', including the `gnu.crypto.mode.ECB' mode which
+basically exposes a symmetric-key block cipher algorithm as a Mode of
+Operations.
+
+ - Variable: String DIRECTION
+     The name of a property in the attributes map that is passed to the
+     `init' method, representing the cascade's desired wiring direction.
+     The mapped value should be a valid `gnu.crypto.assembly.Direction'
+     value. If this attribute is omitted,
+     `gnu.crypto.assembly.Direction.FORWARD' is used.
+
+ - Function: Object append (Stage STAGE) throws IllegalArgumentException
+     Adds to the end of the current chain, a designated STAGE. Returns
+     a unique identifier for this added stage, within this cascade. An
+     `IllegalArgumentException' is thrown if STAGE is already in the
+     chain, or it has incompatible characteristics with the current
+     elements already in the chain. On the other hand, an
+     `IllegalStateException' will be thrown if the cascade has already
+     been initialized, or if the designated STAGE is null.
+
+ - Function: Object prepend (Stage STAGE) throws
+          IllegalArgumentException
+     Adds to the beginning of the current chain, a designated STAGE.
+     Returns a unique identifier for this added stage, within this
+     cascade.  An `IllegalArgumentException' is thrown if STAGE is
+     already in the chain, or it has incompatible characteristics with
+     the current elements already in the chain. On the other hand, an
+     `IllegalStateException' will be thrown if the cascade has already
+     been initialized, or if the designated STAGE is null.
+
+ - Function: Object insert (int INDEX, Stage STAGE) throws
+          IllegalArgumentException, IndexOutOfBoundsException
+     Inserts a designate STAGE Stage into the current Cascade, at the
+     specified INDEX (zero-based) position. Returns a unique identifier
+     for this added stage, within this cascade. Throws an
+     `IllegalArgumentException' if STAGE is already in the chain, or it
+     has incompatible characteristics with the current elements already
+     in the chain. Throws an `IllegalStateException' if the instance is
+     already initialized. Finally, this method throws an
+     `IndexOutOfBoundsException' if INDEX is less than `0' or greater
+     than the current size of this cascade.
+
+ - Function: int size ()
+     Returns the current number of stages in this chain.
+
+ - Function: java.util.Iterator stages ()
+     Returns an `java.util.Iterator' over the stages contained in this
+     instance. Each element of this iterator is a concrete
+     implementation of a `gnu.crypto.assembly.Stage'.
+
+ - Function: java.util.Set blockSizes ()
+     Returns a `java.util.Set' of supported block sizes for this
+     Cascade that are common to all of its chained stages. Each element
+     in the returned set is an instance of `Integer'.
+
+ - Function: void init (java.util.Map ATTRIBUTES) throws
+          InvalidKeyException
+     Initializes the chain for operation with specific characteristics,
+     as specified by the contents of ATTRIBUTES -a set of name-value
+     pairs that describes the desired future behavior of this instance.
+     Throws an `IllegalStateException' if the chain, or any of its
+     stages, is already initialized. Throws an `InvalidKeyException' if
+     the initialization data provided with the stage is incorrect or
+     causes an invalid key to be generated.
+
+ - Function: int currentBlockSize ()
+     Returns the currently set block size for the chain. Throws an
+     `IllegalStateException' if the instance is not yet initialized.
+
+ - Function: void reset ()
+     Resets the chain for re-initialization and use with other
+     characteristics. This method always succeeds.
+
+ - Function: void update (byte[] IN, int INOFFSET, byte[] OUT, int
+          OUTOFFSET)
+     Processes exactly one block of plaintext (if initialized in the
+     `gnu.crypto.assembly.Direction#FORWARD' direction) or ciphertext
+     (if initialised in the `gnu.crypto.assembly.Direction#REVERSED'
+     direction), from IN, starting at index position INOFFSET,
+     returning the result in OUT, starting at index position OUTOFFSET.
+     Throws an `IllegalStateException' if the instance is not yet
+     initialized.
+
+ - Function: boolean selfTest ()
+     Conducts a simple correctness test that consists of basic symmetric
+     encryption / decryption test(s) for all supported block and key
+     sizes of underlying block cipher(s) wrapped by Mode leafs. The
+     test also includes one (1) variable key Known Answer Test (KAT)
+     for each block cipher. Returns `true' if the implementation passes
+     the tests.  Returns `false' otherwise.
+
+
+File: gnu-crypto.info,  Node: Cascade Example,  Prev: Cascade,  Up: Cascades
+
+Example
+=======
+
+   The following example demonstrates how a DES-EDE block cipher can be
+constructed as a Cascade of three DES Stages.
+
+
+     HashMap map = new HashMap();
+     HashMap map1 = new HashMap();
+     HashMap map2 = new HashMap();
+     HashMap map3 = new HashMap();
+     
+     Cascade new3DES = new Cascade();
+     Object des1 = new3DES.append(
+         Stage.getInstance(
+             ModeFactory.getInstance(Registry.ECB_MODE, new DES(), 8),
+             Direction.FORWARD));
+     Object des2 = new3DES.append(
+         Stage.getInstance(
+             ModeFactory.getInstance(Registry.ECB_MODE, new DES(), 8),
+             Direction.REVERSED));
+     Object des3 = new3DES.append(
+         Stage.getInstance(
+             ModeFactory.getInstance(Registry.ECB_MODE, new DES(), 8),
+             Direction.FORWARD));
+     
+     map.put(des1, map1);
+     map.put(des2, map2);
+     map.put(des3, map3);
+     
+     map1.put(IBlockCipher.KEY_MATERIAL, key1material);
+     map2.put(IBlockCipher.KEY_MATERIAL, key2material);
+     map3.put(IBlockCipher.KEY_MATERIAL, key3material);
+     
+     // encryption
+     map.put(Cascade.DIRECTION, Direction.FORWARD);
+     byte[] pt = ...; // some plaintext to encrypt
+     byte[] ct = new byte[pt.length]; // where ciphertext is returned
+     
+     try
+       {
+         new3DES.init(map);
+         new3DES.update(pt, 0, ct, 0);
+       }
+     catch (InvalidKeyException x)
+       {
+         x.printStackTrace(System.err);
+       }
+
+
+File: gnu-crypto.info,  Node: Assemblies,  Next: Operation,  Prev: Cascades,  Up: Cascades and Assemblies
+
+Assemblies
+==========
+
+* Menu:
+
+* Operation::                      The Operation enumeration class.
+* Transformer::                    The Transformer abstract class.
+* Assembly::                       The Assembly class.
+* Assembly Example::               Compressing and encrypting an input stream.
+
+SCENE MISSING
+                      Figure 7: Assembly class diagram
+
+
+File: gnu-crypto.info,  Node: Operation,  Next: Transformer,  Prev: Assemblies,  Up: Assemblies
+
+Operation
+=========
+
+   An enumeration type for specifying the mode of operation of a
+Transformer instance, when wired into an Assembly.
+
+   This class cannot be instantiated; but its (only) two possible values
+can be used for constructing Transformer elements:
+
+   * PRE_PROCESSING: to mean that the input data is first processed by
+     the current Transformer before being passed to the rest of the
+     chain; and
+
+   * POST_PROCESSING: to mean that the input data is first passed to the
+     rest of the chain, and the resulting bytes are then processed by
+     the current Transformer.
+

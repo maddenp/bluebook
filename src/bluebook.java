@@ -1,4 +1,4 @@
-// Copyright 2012 Paul Madden
+// Copyright 2012 Paul Madden (maddenp@colorado.edu)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
